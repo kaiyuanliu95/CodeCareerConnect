@@ -1,0 +1,30 @@
+
+.header-section {
+  background-color:  #007bff; /* Bootstrap theme colour */
+}
+
+.custom-bg{
+  background-color:rgb(213, 154, 71);
+}
+/* Additional styles customized based on Bootstrap */
+.browser-mockup {
+  border: solid 2px #ddd;
+  border-top-width: 36px;
+  position: relative;
+  height: 300px; 
+  background-color: white;
+  margin-bottom: 20px;
+}
+/* Place the submit button in the lower right corner of the mock up browser */
+.browser-mockup .btn {
+  position: absolute;
+  right: 10px; 
+  bottom: 10px; 
+}
+
+.user-info {
+  background-color: white;
+}
+
+
+
