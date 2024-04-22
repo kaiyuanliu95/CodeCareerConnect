@@ -1,0 +1,88 @@
+.header-section {
+  background-color:  #007bff; /* Bootstrap theme colour */
+}
+
+.custom-bg{
+  background-color:rgb(213, 154, 71);
+}
+/* General reset and base styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+/* Specific container for content to avoid affecting Bootstrap nav */
+.content .container {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Headers within content area */
+.content h2, .content h3 {
+  color: #0056b3;
+}
+
+.content h2 {
+  border-bottom: 2px solid #0056b3;
+  padding-bottom: 10px;
+}
+
+.content h3 {
+  margin-top: 20px;
+  padding-bottom: 5px;
+}
+
+/* Paragraph styles within content area */
+.content p {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  color: #555;
+}
+
+/* List styles within content area */
+.content ul {
+  list-style-type: none;
+  padding: 15px;
+  border-left: 4px solid #0056b3;
+  background-color: #f9f9f9;
+  margin-top: 10px;
+}
+
+.content li {
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.content li:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.content strong {
+  color: #0056b3;
+  font-weight: normal;
+}
+
+/* Link styles within content area to avoid affecting Bootstrap nav */
+.content a {
+  text-decoration: none;
+  color: white;
+  background-color: #007BFF;
+  padding: 8px 15px;
+  border-radius: 5px;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.content a:hover {
+  background-color: #0056b3;
+}
