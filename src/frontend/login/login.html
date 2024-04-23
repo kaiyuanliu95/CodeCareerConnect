@@ -10,6 +10,12 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
+  <!-- Navigation bar -->
+  <div class="navbar">
+    <a href="#about" class="nav-link">About us</a>
+    <a href="#contact" class="nav-link">Contact</a>
+  </div>
+
   <!-- big div -->
   <div class="bigbox">
     <!-- title -->
@@ -22,10 +28,19 @@
     </h3>
     <!-- email adress -->
     <div class="email-field">
-      <h5 class="email-label">
-        Email address
-      </h5>
+      <label for="email">Email address</label>
       <input type="email" id="email" name="email" placeholder="Your email" required>
+    </div>
+    <!-- password -->
+    <div class="password-field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Password" required>
+    </div>
+    <!-- Log in -->
+    <div class="LogIn">
+      <button type="submit" id="login-button" name="login-button">
+        Log in
+      </button>
     </div>
 
   </div>
