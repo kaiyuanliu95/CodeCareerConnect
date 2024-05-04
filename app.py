@@ -71,10 +71,6 @@ def login():
     return render_template('login.html')
 
 
-
-
-
-
 def check_credentials(email, password):
     # Here is the simulation process of user verification. You can connect to the database to achieve real verification.
     conn = get_db_connection()
@@ -97,8 +93,8 @@ def search():
     return "Search functionality coming soon!"
 
 
-
-
 if __name__ == '__main__':
     init_db()  # Initialize database table
     app.run(debug=True)
+
+
