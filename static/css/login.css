@@ -8,7 +8,7 @@
 }
 
 body {
-  display: flex;
+  /* display: flex; */
   justify-content: flex-end;
   min-height: 100vh;
   background-color: #6badef !important;
@@ -16,7 +16,8 @@ body {
 }
 
 .bigbox {
-  margin-left: auto;
+  margin-top: -20px;
+  margin-left: 760px;
   flex-direction: column;
   padding: 120px;
   width: 600px;
@@ -26,25 +27,12 @@ body {
   position: relative;
 }
 
-.navbar {
-  position: absolute;
-  top: 20px;
-  left: 80px;
-  padding: 10px;
-  display: flex;
-}
-
-.nav-link {
-  margin-right: 60px;
-  align-self: flex-start;
-}
-
-.nav-link:hover {
-  color: #ffffff !important;
-}
-
-.nav-link:active {
-  color: #33649d !important;
+.searchjob {
+  z-index: 1000;
+  margin-left: -150px;
+  margin-top: -1000px;
+  width: 800px;
+  height: auto;
 }
 
 .bigtitle {

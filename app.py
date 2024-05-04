@@ -84,9 +84,17 @@ def check_credentials(email, password):
     conn.close()
     return user is not None
 
-@app.route('/home')
+@app.route('/')
 def home():
-    return "Welcome to the Home Page!"
+    return render_template('index.html')
+
+@app.route('/about')
+def about():
+    return render_template('aboutUs.html')
+
+@app.route('/search')
+def search():
+    return "Search functionality coming soon!"
 
 
 
