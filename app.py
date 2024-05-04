@@ -8,14 +8,14 @@ app = Flask(__name__)
 
 
 
-# SQLite数据库连接
+
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
 
-# 创建数据库表
+
 def init_db():
     conn = get_db_connection()
     conn.execute(
@@ -32,19 +32,19 @@ def register():
         email = data['email']
         password = data['password']
 
-        # 对密码进行哈希处理
+        
         hashed_password = generate_password_hash(password)
 
-        # 将用户数据插入数据库
+    
         conn = get_db_connection()
         try:
             cur = conn.cursor()
             cur.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
                         (username, email, hashed_password))
             conn.commit()
-            return jsonify({'message': '注册成功'})
+            return jsonify({'message': 'register successfully'})
         except sqlite3.IntegrityError:
-            return jsonify({'message': '用户名或邮箱已存在'}), 400
+            return jsonify({'message': ''}), 400
         finally:
             conn.close()
 
@@ -58,18 +58,18 @@ def login():
         email = request.form['email']
         password = request.form['password']
         
-        # 模拟用户验证
+        # 
         if check_credentials(email, password):
-            # 登录成功，重定向到首页
+            # 
             return redirect(url_for('home'))
         else:
-            # 登录失败，显示错误消息
-            flash('无效的用户名或密码')
+            # 
+            flash('invalid user name')
             return render_template('login.html', error='Invalid username or password')
     return render_template('login.html')
 
 def check_credentials(email, password):
-    # 这里是用户验证的模拟过程，你可以连接数据库来实现真正的验证
+   
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, password))
@@ -93,5 +93,5 @@ def search():
 
 
 if __name__ == '__main__':
-    init_db()  # 初始化数据库表
+    init_db()  
     app.run(debug=True)
