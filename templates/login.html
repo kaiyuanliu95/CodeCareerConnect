@@ -3,10 +3,10 @@
 {% block title %}
 Login Page
 {% endblock %}
-
+ 
 {% block head %}
+<script src="{{ url_for('static', filename='jquery/jquery.3.7.min.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 {% endblock %}
 
@@ -29,7 +29,11 @@ Login Page
       <input type="password" id="password" name="password" placeholder="Password" required>
     </div>
     <div class="LogIn">
+
+
       <button type="submit" id="login-button" name="login-button">Log in</button>
+
+
     </div>
   </form>
 </div>

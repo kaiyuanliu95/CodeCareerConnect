@@ -15,7 +15,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    window.location.href = '/home';  // Redirect to home page on success.
+                    window.location.href = '/';  // Redirect to home page on success.
                 } else {
                     alert(response.message);  // Show an alert if login fails.
                 }
