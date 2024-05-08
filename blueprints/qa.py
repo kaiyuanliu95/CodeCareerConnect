@@ -64,3 +64,13 @@ def publish_answer():
         # If validation fails, print errors and redirect back to the detail page of the current question.
         print(form.errors)
         return redirect(url_for("qa.qa_detail", qa_id=request.form.get("question_id")))
+    
+@bp.route("/search")
+def search():
+    # Retrieve the search query from the request's query string.
+    q = request.args.get("q")
+    # Perform a search in the database for questions that contain the search term in their title.
+    questions = QuestionModel.query.filter(QuestionModel.title.contains(q)).all()
+    # Render the 'index.html' template, passing the search results for display.
+    return render_template("index.html", questions=questions)
+
