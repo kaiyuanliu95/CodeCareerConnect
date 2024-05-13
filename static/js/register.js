@@ -1,26 +1,28 @@
 $(document).ready(function() {
     $('#registrationForm').submit(function(event) {
-        event.preventDefault(); // Prevent default form submission behavior
-        
-        // Get form data
-        var formData = {
-            username: $('#username').val(),
+        event.preventDefault(); // Prevent form default submission behavior
+
+        var registrationData = {
             email: $('#email').val(),
-            password: $('#password').val()
+            password: $('#password').val(),
+            username: $('#username').val()
         };
-        
-        // Send AJAX request to the server
+
         $.ajax({
             type: 'POST',
             url: '/register',
-            data: JSON.stringify(formData),
             contentType: 'application/json',
+            data: JSON.stringify(registrationData),
+            dataType: 'json',
             success: function(response) {
-                alert(response.message); // Display message returned by the server
-                $('#registrationForm')[0].reset(); // Reset the form
+                if (response.success) {
+                    window.location.href = '/'; // Redirect to home page on successful registration.
+                } else {
+                    alert(response.message); // Show an alert if registration fails.
+                }
             },
-            error: function(xhr) {
-                alert(xhr.responseJSON.message); // Display error message
+            error: function() {
+                alert('Registration failed. Please check your network connection.');
             }
         });
     });
