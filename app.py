@@ -92,6 +92,10 @@ def about():
 def search():
     return "Search functionality coming soon!"
 
+# @app.route('/post')
+# def post():
+#     question = QuestionModel.query.get(qa_id)
+#     return render_template('detail.html',question=question)
 
 if __name__ == '__main__':
     init_db()  # Initialize database table
