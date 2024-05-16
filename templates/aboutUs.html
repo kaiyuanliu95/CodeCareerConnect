@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block head%}
+<title>About Us</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/aboutUs.css') }}">
+
+{% endblock%}
+
+{% block body %}
+<div class="about-us-content">
+  <div class="container">
+    <h2>Welcome to Code Career Connect</h2>
+    <p>The premier online destination for all your IT career queries. Whether you're just stepping into the tech world
+      or looking to advance in your current IT role, our platform is designed to help you navigate the challenging
+      landscape of the technology job market.</p>
+    <p>At Code Career Connect, we focus on providing actionable advice and real-world solutions to your career
+      questions. Our community-driven platform allows you to engage directly with industry experts and fellow job
+      seekers to exchange tips, experiences, and strategies for securing a job in the IT sector.</p>
+    <h3>What We Offer:</h3>
+    <ul>
+      <li><strong>Job Search Strategies:</strong> Gain insights into effective job search techniques tailored for the
+        tech industry. Learn how to identify opportunities, tailor your applications, and stand out to recruiters.</li>
+      <li><strong>Interview Preparation:</strong> Access comprehensive resources to prepare for technical interviews.
+        Dive into common interview questions, coding challenges, and best practices for communicating your skills and
+        experience.</li>
+      <li><strong>Resume and Cover Letter Tips:</strong> Get expert advice on crafting resumes and cover letters that
+        highlight your technical skills and achievements. Understand what IT recruiters look for and how to present
+        yourself as the ideal candidate.</li>
+      <li><strong>Career Advancement:</strong> Discover pathways for progression in your IT career. Whether it's moving
+        into a senior technical role or transitioning to managerial positions, find guidance on developing the skills
+        and networks needed to succeed.</li>
+    </ul>
+    <p>Join Code Career Connect today and take the first step towards a successful IT career. With our supportive
+      community and wealth of resources, we are here to assist you in unlocking your full potential in the technology
+      job market.</p>
+  </div>
+</div>
+
+{% endblock %}
+
