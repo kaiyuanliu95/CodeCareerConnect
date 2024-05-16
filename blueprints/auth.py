@@ -1,65 +1,107 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, login_required, current_user
-from .forms import LoginForm, RegisterForm
-from .models import db, User
-from flask_mail import Message
-from exts import mail
 import random
-import string
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask_mail import Message
+from werkzeug.security import generate_password_hash, check_password_hash
+from exts import db, mail
+from models import UserModel, EmailCaptchaModel
+from .forms import LoginForm, RegisterForm
+from flask_login import login_user, logout_user, current_user, login_required
 
-auth = Blueprint('auth', __name__)
+bp = Blueprint('auth', __name__)
 
-@auth.route('/register', methods=['GET', 'POST'])
+def generate_verification_code():
+    return ''.join(random.choices('0123456789', k=6))
+
+@bp.route('/send_code', methods=['POST'])
+def send_code():
+    email = request.json.get('email')
+    code = generate_verification_code()
+    expiration = datetime.utcnow() + timedelta(minutes=10)
+
+    verification_code = EmailCaptchaModel.query.filter_by(email=email).first()
+    if verification_code:
+        verification_code.code = code
+        verification_code.expiration = expiration
+    else:
+        verification_code = EmailCaptchaModel(email=email, code=code, expiration=expiration)
+        db.session.add(verification_code)
+    
+    db.session.commit()
+
+    msg = Message('Your Verification Code', sender='2849115967@qq.com', recipients=[email])
+    msg.body = f'Your verification code is {code}. It will expire in 10 minutes.'
+    mail.send(msg)
+
+    return jsonify({'message': 'Verification code sent.'})
+    
+    
+@bp.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegisterForm(request.form)
-    if request.method == 'POST' and form.validate_on_submit():
-        # Check if the email is already registered
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            flash('Email already exists.', 'warning')
-            return redirect(url_for('auth.register'))
-        # Create new user with hashed password
-        new_user = User(username=form.username.data, email=form.email.data,
-                        password=generate_password_hash(form.password.data, method='sha256'))
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Registration successful!', 'success')
-        return redirect(url_for('auth.login'))
+    form = RegisterForm()
+    if request.method == 'POST':
+        data = request.get_json()
+        form = RegisterForm(data=data)
+        if form.validate_on_submit():
+            code = form.code.data
+            verification_code = EmailCaptchaModel.query.filter_by(email=form.email.data).first()
+            if not verification_code or verification_code.is_expired() or verification_code.code != code:
+                return jsonify({'success': False, 'message': 'Invalid or expired verification code'}), 400
+            hashed_password = generate_password_hash(form.password.data, method='sha256')
+            user = UserModel(username=form.username.data, email=form.email.data, password=hashed_password)
+            try:
+                db.session.add(user)
+                db.session.commit()
+                return jsonify({'success': True}), 200
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({'success': False, 'message': 'An error occurred while creating your account. Please try again.'}), 500
+        else:
+            return jsonify({'success': False, 'message': 'Form validation failed. Please check the provided information.'}), 400
     return render_template('register.html', form=form)
-
-@auth.route('/login', methods=['GET', 'POST'])
+    
+    
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm(request.form)
-    if request.method == 'POST' and form.validate_on_submit():
-        # Authenticate the user
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            return redirect(url_for('main.dashboard'))
-        flash('Invalid username or password.', 'danger')
-    return render_template('login.html', form=form)
+    form = LoginForm()
+    if request.method == 'POST':
+        data = request.get_json()
+        print("Received data:", data)  
 
-@auth.route('/logout')
-@login_required
+        form = LoginForm(data=data)
+        if form.validate_on_submit():
+            print("Form validation succeeded.")  
+            print("Email from form:", form.email.data)  
+            print("Password from form:", form.password.data)  
+
+            user = UserModel.query.filter_by(email=form.email.data).first()
+            if user:
+                print("User found in database:", user)  
+                password_check = check_password_hash(user.password, form.password.data)
+                print("Password check result:", password_check)  
+
+                if password_check:
+                    login_user(user)
+                    print("User logged in successfully.")  
+                    return jsonify({'success': True}), 200
+                else:
+                    print("Password check failed.")  
+                    return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
+            else:
+                print("User not found.")  
+                return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
+        else:
+            print("Form validation failed. Errors:", form.errors)  
+            return jsonify({'success': False, 'message': 'Form validation failed. Please check the provided information.'}), 400
+    print("Rendering login template.")  
+    return render_template('login.html', form=form)
+    
+
+@bp.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('main.index'))
-
-@auth.route('/captcha/email', methods=['GET'])
-def get_email_captcha():
-    email = request.args.get("email")
-    captcha = ''.join(random.choices(string.digits, k=4))  # Generate a 4-digit captcha
-    message = Message(subject="Your Verification Code", recipients=[email], body=f"Your captcha is {captcha}")
-    mail.send(message)
-    # Here, add captcha to the database or a temporary store
-    # Assuming EmailCaptchaModel exists and manages captcha
-    db.session.add(EmailCaptchaModel(email=email, captcha=captcha))
-    db.session.commit()
-    return jsonify({"code": 200, "message": "Captcha sent successfully", "data": None})
-
-@auth.route('/mail/test')
-def mail_test():
-    message = Message(subject="Email Test", recipients=["example@example.com"], body="This is a test email.")
-    mail.send(message)
-    return "Email sent successfully"
+    return redirect(url_for('qa.index'))
+    
+@bp.route('/about')
+def about():
+    return render_template('aboutUs.html')  

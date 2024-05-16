@@ -58,4 +58,9 @@ coverage.xml
 /dataSources.local.xml
 # OS generated files
 .DS_Store
+<<<<<<< Updated upstream
 
+=======
+.DS_Store
+.DS_Store
+>>>>>>> Stashed changes
