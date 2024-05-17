@@ -1,8 +1,11 @@
 # Group Members
-Hongyue Cui 23765273
-Kaiyuan Liu 24135818
-Ziqing Ouyang 23946829
-Di Zhang      23897171
+| Name | Student ID|
+| ---- | --------- |
+
+| Hongyue Cui |23765273 |
+| Kaiyuan Liu | 24135818 |
+| Ziqing Ouyang| 23946829v|
+| Di Zhang  |  23897171 |
 
 # Code Career Connect (Triple C)
 ## Introduction
