@@ -4,6 +4,7 @@ from wtforms.validators import Email, Length, EqualTo, InputRequired, DataRequir
 from models import UserModel, EmailCaptchaModel
 from exts import db
 
+# Form class for user registration
 class RegisterForm(wtforms.Form):
     email = wtforms.StringField(validators=[Email(message="Email format error!")])
     captcha = wtforms.StringField(validators=[Length(min=4, max=4, message="Verification code format is wrong!")])
@@ -27,14 +28,17 @@ class RegisterForm(wtforms.Form):
             raise wtforms.ValidationError(message="Email or verification code is wrong!")
             # TODO
 
+# Form class for user login
 class LoginForm(wtforms.Form):
     email= wtforms.StringField(validators=[Email(message="Email format error!")])
     password = wtforms.StringField(validators=[Length(min=6,max=20,message="Password format error!")])
 
+# Form class for creating a question
 class QuestionForm(wtforms.Form):
     title = wtforms.StringField(validators=[Length(min=3,max=100,message="Title format is wrong!")])
     content = wtforms.StringField(validators=[Length(min=3,message="Content format error!")])
 
+# Form class for creating an answer
 class AnswerForm(wtforms.Form):
     content = wtforms.StringField(validators=[Length(min=3,message="Content format error!")])
     question_id = wtforms.IntegerField(validators=[InputRequired(message="The question id must be passed in!")])

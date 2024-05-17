@@ -8,17 +8,18 @@ from models import UserModel
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
-app.config.from_object(config)
+app.config.from_object(config) # Load configurations from config object
 
-db.init_app(app)
-mail.init_app(app)
+db.init_app(app) # Initialize database with the app
+mail.init_app(app) # Initialize mail with the app
 
-migrate = Migrate(app, db)
+migrate = Migrate(app, db) # Setup database migration
 
+# Register blueprints for authentication and Q&A functionalities
 app.register_blueprint(qa_bp)
 app.register_blueprint(auth_bp)
 
-login_manager = LoginManager()
+login_manager = LoginManager() # Initialize LoginManager for handling user sessions
 login_manager.init_app(app)
 
 @login_manager.user_loader
@@ -43,5 +44,5 @@ def my_context_processor():
     return {"current_user": current_user}  
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) # Run the Flask application in debug mode
 
