@@ -1,8 +1,14 @@
 # Group Members
+Hongyue Cui 23765273
+Kaiyuan Liu 24135818
+Ziqing Ouyang 23946829
+Di Zhang      23897171
 
-# Project CCC
+# Code Career Connect (Triple C)
+## Introduction
+Welcome to Code Career Connect (Triple C), a specialised Q&A forum for IT job seekers. Our platform aims to provide valuable consultation and resources for individuals pursuing a career in the IT industry. Here, you can access expert advice on career development, gain insights into various job experiences, learn effective job search techniques, and stay updated with the latest job opportunities. Whether a fresh graduate or an experienced professional looking to make a career change, Triple C supports your journey towards a successful IT career.
 
-This README outlines the steps to set up and run the Flask web application for Project CCC.
+The following outlines the steps to set up and run the Flask web application for Project CCC.
 
 ## Prerequisites
 
@@ -35,7 +41,7 @@ This README outlines the steps to set up and run the Flask web application for P
 
 4. **Activate the Virtual Environment**
 
-   Activate the virtual environment to use it for installing dependencies and running the application.
+   Activate the virtual environment to install dependencies and run the application.
 
    ```
    source venv/bin/activate
