@@ -1,36 +1,65 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import current_user, login_required
-from models import Question, Answer
-from exts import db
-from .forms import PostQuestionForm, AnswerForm
+from flask import Blueprint, redirect, url_for, request, render_template, g
+from .forms import QuestionForm, AnswerForm
+from models import QuestionModel, AnswerModel
+from exts  import db
+from decorators import  login_required
 
-bp = Blueprint('qa', __name__)
+# from decorators import  login_required
+bp = Blueprint("qa",__name__, url_prefix="/")
 
-@bp.route('/')
+@bp.route("/")
 def index():
-    questions = Question.query.all()
-    return render_template('index.html', questions=questions)
+    questions = QuestionModel.query.order_by(QuestionModel.create_time.desc()).all()
+    return render_template("index.html",questions = questions)
 
-@bp.route('/post_question', methods=['GET', 'POST'])
+
+
+@bp.route("/post_question",methods=['GET','POST'])
 @login_required
-def post_question():
-    form = PostQuestionForm()
-    if form.validate_on_submit():
-        question = Question(title=form.title.data, content=form.content.data, author=current_user)
-        db.session.add(question)
-        db.session.commit()
-        flash('Your question has been posted!', 'success')
-        return redirect(url_for('qa.index'))
-    return render_template('post_question.html', form=form)
+def public_question():
+    if request.method == 'GET':
+        return render_template("public_question.html")
+    else:
+        form = QuestionForm(request.form)
+        if form.validate():
+            title = form.title.data
+            content = form.content.data
+            question = QuestionModel(title=title, content=content, author=g.user)
+            db.session.add(question)
+            db.session.commit()
+            # TODO:
+            return redirect("/")
+        else:
+            print(form.errors)
+            return  redirect(url_for("qa.public"))
 
-@bp.route('/question/<int:question_id>', methods=['GET', 'POST'])
-def question_detail(question_id):
-    question = Question.query.get_or_404(question_id)
-    form = AnswerForm()
-    if form.validate_on_submit():
-        answer = Answer(content=form.content.data, author=current_user, question=question)
+
+
+
+@bp.route("/qa/detail/<int:qa_id>")
+def qa_detail(qa_id):
+    question = QuestionModel.query.get(qa_id)
+    return render_template("detail.html",question=question)
+
+@bp.post("/answer/public")
+@login_required
+def public_answer():
+    form = AnswerForm(request.form)
+    if form.validate():
+        content = form.content.data
+        question_id = form.question_id.data
+        answer = AnswerModel(content=content,question_id=question_id,author_id=g.user.id)
         db.session.add(answer)
         db.session.commit()
-        flash('Your answer has been posted!', 'success')
-        return redirect(url_for('qa.question_detail', question_id=question.id))
-    return render_template('detail.html', question=question, form=form)
+        return redirect(url_for("qa.qa_detail",qa_id=question_id))
+    else:
+        print(form.errors)
+        return redirect(url_for("qa.qa_detail",qa_id=request.form.get("question_id")))
+    
+@bp.route("/search")
+def search():
+    q = request.args.get("q")
+    questions = QuestionModel.query.filter(QuestionModel.title.contains(q)).all()
+    return render_template("index.html",questions=questions)
+
+

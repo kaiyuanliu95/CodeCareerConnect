@@ -4,36 +4,27 @@ $(document).ready(function() {
 
         var loginData = {
             email: $('#email').val(),
-            password: $('#password').val()// Add CSRF token
+            password: $('#password').val()
         };
-
-        console.log("Login data: ", loginData);  // Add this line for debugging
 
         $.ajax({
             type: 'POST',
-            url: '/login',
-            contentType: 'application/x-www-form-urlencoded', // Changed content type
-            data: $.param(loginData),  // Serialize the data
+            url: '/auth/login',  // Make sure this matches your Flask route
+            contentType: 'application/json',
+            data: JSON.stringify(loginData),
+            dataType: 'json',
             success: function(response) {
-                console.log("Server response: ", response);  // Add this line for debugging
                 if (response.success) {
                     window.location.href = '/';  // Redirect to home page on success.
                 } else {
-                    if (response.errors) {
-                        // Display validation errors
-                        var errors = response.errors;
-                        for (var field in errors) {
-                            alert(errors[field]);
-                        }
-                    } else {
-                        alert(response.message);  // Show an alert if login fails.
-                    }
+                    alert(response.message);  // Show an alert if login fails.
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Login request failed: ", textStatus, errorThrown);  // Add this line for debugging
+            error: function() {
                 alert('Login failed. Please check your network connection.');
             }
         });
     });
 });
+
+

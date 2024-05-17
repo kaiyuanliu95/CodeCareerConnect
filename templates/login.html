@@ -1,60 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <script src="{{ url_for('static', filename='jquery/jquery.3.7.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
-</head>
-<body>
-    <form id="loginForm" method="post">
-        <div>
-            <label for="email">Email</label>
-            {{ form.email }}
-        </div>
-        <div>
-            <label for="password">Password</label>
-            {{ form.password }}
-        </div>
-        <button type="submit">Login</button>
-    </form>
+{% extends 'base.html' %}
 
-    <script>
-        $(document).ready(function() {
-            $('#loginForm').submit(function(event) {
-                event.preventDefault(); // Prevent form default submission behavior
+{% block title %}
+Login Page
+{% endblock %}
+ 
+{% block head %}
+<script src="{{ url_for('static', filename='jquery/jquery.3.7.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}
+ 
+{% block body %}
+<div class="bigbox">
+  <h1 class="bigtitle">
+    Bridge to Tech Careers!
+  </h1>
+  <h3 class="subtitle">
+    Hello, Welcome!
+  </h3>
 
-                var loginData = {
-                    email: $('#email').val(),
-                    password: $('#password').val()
-                };
+  <form id="loginForm" method="post">
+    <div class="email-field">
+      <label for="email">Email address</label>
+      <input type="email" id="email" name="email" placeholder="Your email" required>
+    </div>
+    <div class="password-field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Password" required>
+    </div>
+    <div class="LogIn">
 
-                console.log("Login data: ", loginData);  // Add this line
 
-                $.ajax({
-                    type: 'POST',
-                    url: '/login',
-                    contentType: 'application/json',
-                    data: JSON.stringify(loginData),
-                    dataType: 'json',
-                    success: function(response) {
-                        console.log("Server response: ", response);  // Add this line
-                        if (response.success) {
-                            window.location.href = '/';  // Redirect to home page on success.
-                        } else {
-                            alert(response.message);  // Show an alert if login fails.
-                        }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error("Login request failed: ", textStatus, errorThrown);  // Add this line
-                        alert('Login failed. Please check your network connection.');
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+      <button type="submit" id="login-button" name="login-button">Log in</button>
+
+
+    </div>
+  </form>
+</div>
+<img class="searchjob" src="{{ url_for('static', filename='images/searchjob.png') }}" alt="searchjob">
+{% endblock %}
+

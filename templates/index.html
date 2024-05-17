@@ -3,25 +3,35 @@
 {% block title%}CodeCareerConnect-index{%endblock%}
 
 {% block head%}
-
+<script src="{{ url_for('static', filename='jquery/jquery.3.7.min.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 {% endblock%}
 
-{%block body%}
-<h1>There is going to dinamically display a question list.</h1>
-<table class="table">
-    <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th>PostedAt</th>
-    </tr>
-    {% for question in questions %}
-    <tr>
-        <td>{{ question.id }}</td>
-        <td>{{ question.title }}</td>
-        <td>{{ question.date_posted }}</td>
-    </tr>
-    {% endfor %}
-</table>
+{% block body %}
+<div class="row" style="margin-top: 20px;">
+  <div class="col"></div>
+  <div class="col-10">
+    <ul class="question-ul">
+      {% for question in questions %}
+      <li>
+        <div class="side-question">
+          <img class="side-question-avatar" src="{{ url_for('static', filename='images/avatar.jpg') }}" alt="">
+        </div>
+        <div class="question-main">
+          <div class="question-title">
+            <a href="{{ url_for('qa.qa_detail', qa_id=question.id) }}">{{ question.title }}</a>
+          </div>
+          <div class="question-content">{{ question.content }}</div>
+          <div class="question-detail">
+            <span class="question-author">{{ question.author.username }}</span>
+            <span class="question-time">{{ question.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="col"></div>
+</div>
 {% endblock %}
 

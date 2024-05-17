@@ -1,107 +1,104 @@
+from flask import Blueprint, render_template, jsonify, redirect, url_for, session, flash,request
 import random
-from datetime import datetime, timedelta
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
-from flask_mail import Message
+import string
 from werkzeug.security import generate_password_hash, check_password_hash
-from exts import db, mail
-from models import UserModel, EmailCaptchaModel
-from .forms import LoginForm, RegisterForm
-from flask_login import login_user, logout_user, current_user, login_required
+from werkzeug.datastructures import MultiDict
+from models import EmailCaptchaModel, UserModel
+from exts import  mail,db
+from flask_mail import Mail, Message
+from flask import request
+from .forms import RegisterForm,LoginForm
+import logging
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-bp = Blueprint('auth', __name__)
 
-def generate_verification_code():
-    return ''.join(random.choices('0123456789', k=6))
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-@bp.route('/send_code', methods=['POST'])
-def send_code():
-    email = request.json.get('email')
-    code = generate_verification_code()
-    expiration = datetime.utcnow() + timedelta(minutes=10)
-
-    verification_code = EmailCaptchaModel.query.filter_by(email=email).first()
-    if verification_code:
-        verification_code.code = code
-        verification_code.expiration = expiration
-    else:
-        verification_code = EmailCaptchaModel(email=email, code=code, expiration=expiration)
-        db.session.add(verification_code)
-    
-    db.session.commit()
-
-    msg = Message('Your Verification Code', sender='2849115967@qq.com', recipients=[email])
-    msg.body = f'Your verification code is {code}. It will expire in 10 minutes.'
-    mail.send(msg)
-
-    return jsonify({'message': 'Verification code sent.'})
-    
-    
-@bp.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-    if request.method == 'POST':
-        data = request.get_json()
-        form = RegisterForm(data=data)
-        if form.validate_on_submit():
-            code = form.code.data
-            verification_code = EmailCaptchaModel.query.filter_by(email=form.email.data).first()
-            if not verification_code or verification_code.is_expired() or verification_code.code != code:
-                return jsonify({'success': False, 'message': 'Invalid or expired verification code'}), 400
-            hashed_password = generate_password_hash(form.password.data, method='sha256')
-            user = UserModel(username=form.username.data, email=form.email.data, password=hashed_password)
-            try:
-                db.session.add(user)
-                db.session.commit()
-                return jsonify({'success': True}), 200
-            except Exception as e:
-                db.session.rollback()
-                return jsonify({'success': False, 'message': 'An error occurred while creating your account. Please try again.'}), 500
-        else:
-            return jsonify({'success': False, 'message': 'Form validation failed. Please check the provided information.'}), 400
-    return render_template('register.html', form=form)
-    
-    
-@bp.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if request.method == 'POST':
-        data = request.get_json()
-        print("Received data:", data)  
-
-        form = LoginForm(data=data)
-        if form.validate_on_submit():
-            print("Form validation succeeded.")  
-            print("Email from form:", form.email.data)  
-            print("Password from form:", form.password.data)  
-
-            user = UserModel.query.filter_by(email=form.email.data).first()
-            if user:
-                print("User found in database:", user)  
-                password_check = check_password_hash(user.password, form.password.data)
-                print("Password check result:", password_check)  
-
-                if password_check:
-                    login_user(user)
-                    print("User logged in successfully.")  
-                    return jsonify({'success': True}), 200
-                else:
-                    print("Password check failed.")  
-                    return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
-            else:
-                print("User not found.")  
-                return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
-        else:
-            print("Form validation failed. Errors:", form.errors)  
-            return jsonify({'success': False, 'message': 'Form validation failed. Please check the provided information.'}), 400
-    print("Rendering login template.")  
-    return render_template('login.html', form=form)
-    
-
-@bp.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('qa.index'))
-    
 @bp.route('/about')
 def about():
-    return render_template('aboutUs.html')  
+    return render_template('aboutUs.html')
+
+
+@bp.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template("login.html")
+    else:
+        data = request.get_json()
+        form = LoginForm(formdata=MultiDict(data))
+        if form.validate():
+            email = form.email.data
+            password = form.password.data
+            user = UserModel.query.filter_by(email=email).first()
+            if not user:
+                return jsonify({'success': False, 'message': 'Email does not exist.'})
+            if check_password_hash(user.password, password):
+                login_user(user)
+                session['user_id'] = user.id
+                return jsonify({'success': True}), 200
+            else:
+                return jsonify({'success': False, 'message': 'Incorrect password.'})
+        else:
+            errors = []
+            for field, field_errors in form.errors.items():
+                for error in field_errors:
+                    errors.append(f"Error in {field}: {error}")
+            return jsonify({'success': False, 'message': ' '.join(errors)})
+
+
+@bp.route("/register",methods=['GET','POST'])
+def register():
+  if request.method =='GET':
+    return render_template("register.html")
+  else:
+        form = RegisterForm(request.form)
+        if form.validate():
+            email = form.email.data
+            username = form.username.data
+            password = form.password.data
+            user = UserModel(email=email,username=username,password=generate_password_hash(password))
+            db.session.add(user)
+            db.session.commit()
+            flash("Registration successful! Please log in.", "success")
+            return redirect(url_for("auth.login"))
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"Error in {field}: {error}", "danger")
+            return redirect(url_for("auth.register"))
+
+@bp.route("/captcha/email", methods=['POST'])
+def get_email_captcha():
+    email = request.json.get("email")
+    if not email:
+        return jsonify({"code": 400, "message": "Email is required", "data": None})
+    
+    logging.info(f"Email received: {email}")
+    
+    try:
+        source = string.digits
+        captcha = ''.join(random.choices(source, k=4))
+        
+        message = Message(subject="Verification code", recipients=[email], body=f"Your verification code is {captcha}")
+        mail.send(message)
+        
+        email_captcha = EmailCaptchaModel(email=email, captcha=captcha)
+        db.session.add(email_captcha)
+        db.session.commit()
+        
+        return jsonify({"code": 200, "message": "", "data": None})
+    except Exception as e:
+        logging.error(f"Error occurred: {e}")
+        return jsonify({"code": 500, "message": "Internal server error", "data": None})
+
+
+
+
+@bp.route("/logout")
+def logout():
+    logout_user()
+    session.pop('user_id', None)
+    return redirect(url_for('qa.index'))
+
+

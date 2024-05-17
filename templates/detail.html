@@ -3,6 +3,7 @@
 {% block title%}{{question.title}}{%endblock%}
 
 {% block head%}
+<script src="{{ url_for('static', filename='jquery/jquery.3.7.min.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/detail.css')}}">
 {% endblock%}
 
@@ -32,7 +33,7 @@
       {% for answer in question.answers %}
       <li>
         <div class="user-info">
-          <img class="avatar" src="url_for('static',filename='image/avatar.jpg')" alt="">
+          <img class="avatar" src="{{ url_for('static', filename='images/avatar.jpg') }}" alt="Avatar">
           <span class="username">{{answer.author.username}}</span>
           <span class="create-time">{{answer.create_time}}</span>
         </div>
