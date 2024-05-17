@@ -47,17 +47,7 @@ This README outlines the steps required to set up and run the Flask web applicat
    pip3 install -r requirements.txt
    ```
 
-6. **Additional Packages**
-
-   Install additional packages like `flask_mail` and `email_validator` that are required for specific functionalities within the app.
-
-   ```
-   pip3 install flask_mail
-   pip3 install email_validator
-   pip3 install flask_login
-   ```
-
-7. **Database Setup**
+6. **Database Setup**
 
    Initialize the database with Flask-Migrate to handle database migrations.
 
@@ -67,7 +57,7 @@ This README outlines the steps required to set up and run the Flask web applicat
    flask db upgrade
    ```
 
-8. **Run the Application**
+7. **Run the Application**
 
    Start the Flask development server to run the application locally.
 
