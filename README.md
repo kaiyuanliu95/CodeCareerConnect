@@ -1,6 +1,8 @@
+# Group Members
+
 # Project CCC
 
-This README outlines the steps required to set up and run the Flask web application for the Project CCC.
+This README outlines the steps to set up and run the Flask web application for Project CCC.
 
 ## Prerequisites
 
@@ -47,19 +49,16 @@ This README outlines the steps required to set up and run the Flask web applicat
    pip3 install -r requirements.txt
    ```
 
-6. **Additional Packages**
 
-   Install additional packages like `flask_mail` and `email_validator` that are required for specific functionalities within the app.
+6. **Database Setup and Migration**:
+
+   Delete existing SQLite database file if the database is not empty.
 
    ```
-   pip3 install flask_mail
-   pip3 install email_validator
-   pip3 install flask_login
+   rm app.db
+
    ```
-
-7. **Database Setup**
-
-   Initialize the database with Flask-Migrate to handle database migrations.
+   Initialize the Database and generate migration.
 
    ```
    flask db init
@@ -67,7 +66,7 @@ This README outlines the steps required to set up and run the Flask web applicat
    flask db upgrade
    ```
 
-8. **Run the Application**
+7. **Run the Application**
 
    Start the Flask development server to run the application locally.
 
@@ -77,13 +76,6 @@ This README outlines the steps required to set up and run the Flask web applicat
 
    The application will be available at `http://127.0.0.1:5000/`.
 
-## Additional Information
-
-- Ensure to configure the application settings and database connection in the `migrations/alembic.ini` and other configuration files as per your setup.
-- Regularly update pip to its latest version to avoid security vulnerabilities and ensure compatibility with packages.
-  ```
-  pip install --upgrade pip
-  ```
 
 ## Troubleshooting
 
