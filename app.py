@@ -17,15 +17,16 @@ def create_app(config_name='default'):
     migrate = Migrate(app, db)  # Setup database migration
 
     # Register blueprints for authentication and Q&A functionalities
-    app.register_blueprint(qa_bp)
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(qa_bp,url_prefix='/qa')
+    app.register_blueprint(auth_bp,url_prefix='/auth')
 
     login_manager = LoginManager()  # Initialize LoginManager for handling user sessions
     login_manager.init_app(app)
 
     @login_manager.user_loader
     def load_user(user_id):
-        return UserModel.query.get(int(user_id))
+        with app.app_context():
+          return UserModel.query.get(int(user_id))
 
     @login_manager.unauthorized_handler
     def unauthorized_callback():
