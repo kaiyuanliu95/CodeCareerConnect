@@ -17,8 +17,8 @@ def create_app(config_name='default'):
     migrate = Migrate(app, db)  # Setup database migration
 
     # Register blueprints for authentication and Q&A functionalities
-    app.register_blueprint(qa_bp,url_prefix='/qa')
-    app.register_blueprint(auth_bp,url_prefix='/auth')
+    app.register_blueprint(qa_bp, url_prefix='/qa')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
 
     login_manager = LoginManager()  # Initialize LoginManager for handling user sessions
     login_manager.init_app(app)
@@ -26,7 +26,7 @@ def create_app(config_name='default'):
     @login_manager.user_loader
     def load_user(user_id):
         with app.app_context():
-          return UserModel.query.get(int(user_id))
+            return UserModel.query.get(int(user_id))
 
     @login_manager.unauthorized_handler
     def unauthorized_callback():
@@ -45,10 +45,12 @@ def create_app(config_name='default'):
     def my_context_processor():
         return {"current_user": current_user}
 
+    @app.route('/')
+    def index():
+        return redirect(url_for('qa.index'))
+
     return app
 
 if __name__ == '__main__':
     app = create_app('development')
     app.run(debug=True)  # Run the Flask application in debug mode
-
-
