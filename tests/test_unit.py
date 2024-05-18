@@ -3,7 +3,7 @@ import unittest
 from flask import session
 from app import create_app
 from exts import db
-from models import UserModel, QuestionModel
+from models import UserModel, QuestionModel,EmailCaptchaModel
 from werkzeug.security import generate_password_hash
 
 class AppTests(unittest.TestCase):
@@ -79,6 +79,27 @@ class AppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 302)  # Assuming redirect on success
         new_question = QuestionModel.query.filter_by(title='New Question').first()
         self.assertIsNotNone(new_question)
+    
+
+    def test_logout_user(self):
+        with self.app.app_context():
+            self.client.post('/auth/login', json={
+                'email': 'test@example.com',
+                'password': 'password'
+            }, content_type='application/json')
+
+            response = self.client.get('/auth/logout')
+            self.assertEqual(response.status_code, 302)  # Assuming redirect on success
+            with self.client as c:
+                with c.session_transaction() as sess:
+                    self.assertNotIn('user_id', sess)
+    def test_about_page(self):
+        with self.app.app_context():
+            response = self.client.get('/auth/about')
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'About Us', response.data)  # Assuming the template contains "About Us"
+
+
 
 if __name__ == '__main__':
     unittest.main()
