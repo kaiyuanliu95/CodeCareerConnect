@@ -1,10 +1,11 @@
 # Group Members
-| Name | Student ID|
-| ---- | --------- |
-| Hongyue Cui |23765273 |
-| Kaiyuan Liu | 24135818 |
-| Ziqing Ouyang| 23946829 |
-| Di Zhang  |  23897171 |
+| Name         | Student ID | GitHub Username |
+| ------------ | ---------- | --------------- |
+| Hongyue Cui  | 23765273   | HongyueCui      |
+| Kaiyuan Liu  | 24135818   | kaiyuanliu95    |
+| Ziqing Ouyang| 23946829   | Aria622         |
+| Di Zhang     | 23897171   | FlorenceZ2021   |
+
 
 # Code Career Connect (Triple C)
 ## Introduction
