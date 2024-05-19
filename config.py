@@ -1,27 +1,35 @@
-#encoding: utf-8
 import os
 
-HOSTNAME = '127.0.0.1'
-PORT     = '3306'
-DATABASE = 'zlktqa'
-USERNAME = 'root'
-PASSWORD = '259925645'
-SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
 
-SQLALCHEMY_TRACK_MODIFICATIONS = True
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or os.urandom(24)
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    DEBUG = False
 
-DEBUG = True
+    # Email configuration
+    MAIL_SERVER = "smtp.qq.com"
+    MAIL_USE_SSL = True
+    MAIL_PORT = 465
+    MAIL_USERNAME = "2849115967@qq.com"
+    MAIL_PASSWORD = "uqlbhymhdmrkddgg"
+    MAIL_DEFAULT_SENDER = "2849115967@qq.com"
 
-#Email configuration information
-MAIL_SERVER ="smtp.qq.com"
-MAIL_USE_SSL = True
-MAIL_PORT = 465
-MAIL_USERNAME ="2849115967@qq.com"
-MAIL_PASSWORD ="uqlbhymhdmrkddgg"
-MAIL_DEFAULT_SENDER ="2849115967@qq.com"
+    @staticmethod
+    def init_app(app):
+        pass
 
-SECRET_KEY = os.urandom(24)
+class DevelopmentConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
 
-SECRET_KE = "fafadgrawewga"
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    WTF_CSRF_ENABLED = False  # Disable CSRF for testing
 
 
+config = {
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,
+     'default': DevelopmentConfig
+}
