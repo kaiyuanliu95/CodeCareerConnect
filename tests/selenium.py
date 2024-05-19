@@ -1,41 +1,47 @@
 import unittest
+from flask import session
 from app import create_app
 from exts import db
+from models import UserModel, QuestionModel, AnswerModel
+from werkzeug.security import generate_password_hash
+from test_data import BasicUnitTests
 from selenium import webdriver
-from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 import threading
 import time
+import socket
 
 class SeleniumTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print("Setting up the class...")
         # Create Flask app
         cls.app = create_app('testing')
         cls.app_context = cls.app.app_context()
         cls.app_context.push()
         cls.client = cls.app.test_client()
 
-        # Start Flask server in a separate thread
-        cls.server_thread = threading.Thread(target=cls.app.run, kwargs={'debug': False, 'use_reloader': False})
+        # Find a free port and start the Flask server on it
+        cls.port = cls.find_free_port()
+        cls.server_thread = threading.Thread(target=cls.app.run, kwargs={'port': cls.port, 'debug': False, 'use_reloader': False})
         cls.server_thread.start()
         time.sleep(1)  # Give the server some time to start
 
         with cls.app.app_context():
             db.create_all()
+            cls.test_data = BasicUnitTests()
 
         # Set up Selenium WebDriver
         cls.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
         cls.driver.implicitly_wait(10)
-        print("Class setup complete.")
+        cls.driver.get(f'http://localhost:{cls.port}/')
 
     @classmethod
     def tearDownClass(cls):
-        print("Tearing down the class...")
-        # Stop Flask server
+        # Stop the Flask server
         cls.driver.quit()
         cls.server_thread.join()
 
@@ -43,40 +49,127 @@ class SeleniumTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         cls.app_context.pop()
-        print("Class teardown complete.")
 
     def setUp(self):
-        print("Setting up the test...")
+        self.user = self.test_data.create_random_user()
 
     def tearDown(self):
-        print("Tearing down the test...")
+        db.session.rollback()
+        db.session.remove()  # Remove the current session to ensure a fresh start
+        for table in reversed(db.metadata.sorted_tables):
+            db.session.execute(table.delete())
+        db.session.commit()
 
-    def test_home_page_loads(self):
-        print("Testing if the home page loads...")
-        try:
-            self.driver.get('http://localhost:5000/')
-            self.assertIn('CodeCareerConnect', self.driver.title)
-            print("Home page test passed.")
-        except Exception as e:
-            print(f"Error in home page test: {e}")
+    @staticmethod
+    def find_free_port():
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind(('', 0))
+        port = s.getsockname()[1]
+        s.close()
+        return port
 
-    def test_register_page_loads(self):
-        print("Testing if the register page loads...")
+    def test_login(self):
         try:
-            self.driver.get('http://localhost:5000/auth/register')
-            self.assertIn('User Registration', self.driver.title)
-            print("Register page test passed.")
+            self.driver.get(f'http://localhost:{self.port}/auth/login')
+            email_input = self.driver.find_element(By.NAME, 'email')
+            password_input = self.driver.find_element(By.NAME, 'password')
+            email_input.send_keys(self.user.email)
+            password_input.send_keys('password')
+            password_input.send_keys(Keys.RETURN)
+            time.sleep(1)
+            self.assertIn('Welcome', self.driver.page_source)
         except Exception as e:
-            print(f"Error in register page test: {e}")
+            print(f"Error in test_login: {e}")
+            print(self.driver.page_source)
+            raise
 
-    def test_login_page_loads(self):
-        print("Testing if the login page loads...")
+    def test_register_user(self):
         try:
-            self.driver.get('http://localhost:5000/auth/login')
-            self.assertIn('Login', self.driver.title)
-            print("Login page test passed.")
+            self.driver.get(f'http://localhost:{self.port}/auth/register')
+            username_input = self.driver.find_element(By.NAME, 'username')
+            email_input = self.driver.find_element(By.NAME, 'email')
+            password_input = self.driver.find_element(By.NAME, 'password')
+            
+            username_input.send_keys('newuser')
+            email_input.send_keys('newuser@example.com')
+            password_input.send_keys('password')
+            password_input.send_keys(Keys.RETURN)
+            
+            time.sleep(2)  # Increase wait time to ensure the page has time to load
+            self.assertIn('Log In', self.driver.page_source)
         except Exception as e:
-            print(f"Error in login page test: {e}")
+            print(f"Error in test_register_user: {e}")
+            print(self.driver.page_source)
+            raise
+
+    def test_post_question(self):
+        try:
+            self.driver.get(f'http://localhost:{self.port}/auth/login')
+            email_input = self.driver.find_element(By.NAME, 'email')
+            password_input = self.driver.find_element(By.NAME, 'password')
+            email_input.send_keys(self.user.email)
+            password_input.send_keys('password')
+            password_input.send_keys(Keys.RETURN)
+            
+            time.sleep(1)
+            
+            self.driver.get(f'http://localhost:{self.port}/qa/post_question')
+            title_input = self.driver.find_element(By.NAME, 'title')
+            content_input = self.driver.find_element(By.NAME, 'content')
+            
+            title_input.send_keys('Test Question Title')
+            content_input.send_keys('This is a test question content.')
+            content_input.send_keys(Keys.RETURN)
+            
+            time.sleep(2)  # Increase wait time to ensure the page has time to load
+            self.assertIn('Test Question Title', self.driver.page_source)
+        except Exception as e:
+            print(f"Error in test_post_question: {e}")
+            print(self.driver.page_source)
+            raise
+
+    def test_post_answer(self):
+        try:
+            self.driver.get(f'http://localhost:{self.port}/auth/login')
+            email_input = self.driver.find_element(By.NAME, 'email')
+            password_input = self.driver.find_element(By.NAME, 'password')
+            email_input.send_keys(self.user.email)
+            password_input.send_keys('password')
+            password_input.send_keys(Keys.RETURN)
+            
+            time.sleep(1)
+            
+            question = self.test_data.create_random_question(author_id=self.user.id)
+            self.driver.get(f'http://localhost:{self.port}/qa/detail/{question.id}')
+            time.sleep(1)  # Wait for the page to load
+            content_input = self.driver.find_element(By.NAME, 'content')
+            
+            content_input.send_keys('This is a test answer.')
+            content_input.send_keys(Keys.RETURN)
+            
+            time.sleep(2)  # Increase wait time to ensure the page has time to load
+            self.assertIn('This is a test answer.', self.driver.page_source)
+        except Exception as e:
+            print(f"Error in test_post_answer: {e}")
+            print(self.driver.page_source)
+            raise
+
+    def test_search_question(self):
+        try:
+            question = self.test_data.create_random_question(author_id=self.user.id)
+            
+            self.driver.get(f'http://localhost:{self.port}/')
+            search_input = self.driver.find_element(By.NAME, 'q')
+            
+            search_input.send_keys(question.title.split()[0])
+            search_input.send_keys(Keys.RETURN)
+            
+            time.sleep(1)
+            self.assertIn(question.title, self.driver.page_source)
+        except Exception as e:
+            print(f"Error in test_search_question: {e}")
+            print(self.driver.page_source)
+            raise
 
 if __name__ == '__main__':
     unittest.main()

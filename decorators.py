@@ -1,20 +1,18 @@
+from flask import g, redirect, url_for
 from functools import wraps
 
-from flask import g, redirect, url_for
-
-
 def login_required(func):
-    @wraps (func)
-    def inner(*args,**kwargs):
+    @wraps(func)
+    def inner(*args, **kwargs):
         if g.user:
-            #The first is used to receive any number of positional parameters
-            #and the second is used to receive any number of keyword parameters.
+            # If the user is logged in (g.user exists), proceed to the requested function
+            # The *args is used to receive any number of positional parameters
+            # The **kwargs is used to receive any number of keyword parameters
             return func(*args, **kwargs)
         else:
+            # If the user is not logged in, redirect to the login page
             return redirect(url_for("auth.login"))
     return inner
-        # @login_required
-        # def public_question(quesiton_id):
-        #   pass
-        # login_required(public_question)(question_id)f
+
+    
   
