@@ -86,6 +86,24 @@ The following outlines the steps to set up and run the Flask web application for
    The application will be available at `http://127.0.0.1:5000/`.
 
 
-## Troubleshooting
+## Testing 
+This application uses the Python unittest module for unit testing and Selenium WebDriver for system testing. 
+Install the necessary packages
 
-- If you encounter any issues with package installations, ensure your virtual environment is activated, or check the permissions and settings in your Python environment.
+   ```
+   pip install selenium
+   pip install selenium webdriver_manager
+   ```
+Run unit testing
+   ```
+   python -m unittest discover -s tests.test_unit
+   ```
+Run Selenium WebDriver tests
+   ```
+   python -m unittest tests.selenium
+   ```
+
+
+
+
+ 
