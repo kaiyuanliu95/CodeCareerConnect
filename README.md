@@ -61,16 +61,15 @@ The following outlines the steps to set up and run the Flask web application for
 
 6. **Database Setup and Migration**:
 
-   Delete existing SQLite database file if the database is not empty.
+   If an existing database file exists, delete it. This step ensures a clean setup.
 
    ```
-   rm app.db
+   rm -f app.db
 
    ```
-   Initialize the Database and generate migration.
+   Generate and apply migrations.
 
    ```
-   flask db init
    flask db migrate -m "Initial migration."
    flask db upgrade
    ```
